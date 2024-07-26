@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import streamflixBG from "../assets/streamflixBG.jpg";
 import streamflixLogo from "../assets/Stream-flix.png";
 import tv from "../assets/tv.png";
@@ -9,60 +9,211 @@ import downloadGif from "../assets/download-gif.gif";
 import devicePile from "../assets/device-pile.png";
 import streamflixVideo2 from "../assets/streamflixVideo2.mp4";
 import children from "../assets/children.png";
-import plus from "../assets/plus.svg";
+import { validateForm } from "../utils/validate";
+
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { addUser } from "../utils/userSlice";
+import { useNavigate } from "react-router-dom";
+import Header from "./Header";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [accordian, setAccordian] = useState({});
+  const [errMeaasage, setErrMessage] = useState(null);
+  const [signInPage, setSignInPage] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const dummyCred = () => {
+    setSignInPage(true);
+    setEmailInput("john@gmail.com");
+    setPasswordInput("John1234");
+  };
 
   const handleAccordian = (number) => {
     console.log("accordian clicked");
     setAccordian((oldState) => {
-      const newState = { ...oldState };
+      const newState = {};
       newState[number] = !oldState[number];
       return newState;
     });
   };
 
+  const handleSubmit = () => {
+    const message = validateForm(
+      // name.current.value,
+      email.current.value,
+      password.current.value
+    );
+
+    setErrMessage(message);
+
+    if (message) return;
+
+    if (!signInPage) {
+      //signUp
+
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+
+          //update
+          updateProfile(auth.currentUser, {
+            displayName: name.current.value,
+            photoURL:
+              "https://i.pinimg.com/564x/73/c3/50/73c35097071e55014cffc83b72f85ea3.jpg",
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              // Profile updated!
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+            });
+          console.log(user);
+          navigate("/browse");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          setErrMessage(errorCode + ": " + errorMessage);
+          // ..
+        });
+    } else {
+      //SignIn
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browse");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrMessage(errorCode + ": " + errorMessage);
+        });
+    }
+
+    // console.log(message);
+  };
+
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
+
   return (
-    <div className="flex flex-col bg-black items-center">
+    <div className="flex flex-col bg-black items-center scroll-smooth">
       <div
-        className="w-[100vw] h-[100vh] flex flex-col items-center"
+        id="login"
+        className="w-[100vw] h-[100vh] flex flex-col items-center bg-no-repeat"
         style={{ backgroundImage: `url(${streamflixBG})` }}
       >
-        <div className="w-full">
+        {/* <div className="w-full">
           <img src={streamflixLogo} alt="logo" className="w-60 mx-20 my-5" />
-        </div>
+        </div> */}
+        <Header />
 
         <div className="flex flex-col items-center w-[450px] bg-opacity-75 bg-black max-w-[90%] rounded-sm">
           <h1 className="text-white font-bold text-4xl p-8">Sign In</h1>
-          <form className="flex flex-col gap-2 w-full items-center">
+          <form
+            className="flex flex-col gap-2 w-full items-center"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {!signInPage && (
+              <input
+                ref={name}
+                type="text"
+                placeholder="Full Name"
+                className="px-4 py-3 text-white rounded-md w-[75%] bg-opacity-20 bg-gray-800 border-solid border-gray-900 border-[1px]"
+              />
+            )}
             <input
-              type="text"
-              placeholder="Full Name"
-              className="px-4 py-3 text-white rounded-md w-[75%] bg-opacity-20 bg-gray-800 border-solid border-gray-900 border-[1px]"
-            />
-            <input
+              value={emailInput}
+              ref={email}
               type="email"
               placeholder="Email Address"
               className="px-4 py-3 text-white rounded-md w-[75%] bg-opacity-20 bg-gray-800 border-solid border-gray-900 border-[1px]"
+              onChange={(e) => {
+                setEmailInput(e.target.value);
+              }}
             />
             <input
+              value={passwordInput}
+              ref={password}
               type="password"
               placeholder="Password"
               className="px-4 py-3 text-white rounded-md w-[75%] bg-opacity-20 bg-gray-800 border-solid border-gray-900 border-[1px]"
+              onChange={(e) => {
+                setPasswordInput(e.target.value);
+              }}
             />
-            <input
+            {/* <input
               type="password"
               placeholder="Confirm Password"
               className="px-4 py-3 text-white rounded-md w-[75%] bg-opacity-20 bg-gray-800 border-solid border-gray-900 border-[1px]"
-            />
-            <button className="bg-red-600 w-[75%] py-2 rounded-md text-white">
+            /> */}
+            <p className="text-red-500">{errMeaasage}</p>
+            <button
+              className="bg-red-600 w-[75%] py-2 rounded-md text-white"
+              onClick={() => {
+                handleSubmit();
+                // console.log(name.current.value);
+                console.log(email.current.value);
+                console.log(password.current.value);
+              }}
+            >
               Sign In
             </button>
-            <div className="w-[75%] py-8">
-              <p className="text-white cursor-pointer">
-                <span className="text-gray-500">New to Stream-Flix?</span> Sign
-                Up Now.
+            <div className="w-[75%] pt-8">
+              <p
+                className="text-white cursor-pointer"
+                onClick={() => {
+                  setSignInPage(!signInPage);
+                }}
+              >
+                <span className="text-gray-500">
+                  {signInPage ? "New to Stream-Flix?" : "Already a User?"}
+                </span>
+                {signInPage ? " Sign Up Now" : " Sign In Now"}
+              </p>
+              <p
+                className="text-white cursor-pointer pt-2 pb-6"
+                onClick={dummyCred}
+              >
+                Use Dummy Credential
               </p>
             </div>
           </form>
@@ -70,6 +221,8 @@ const Login = () => {
       </div>
 
       <div className="h-2 bg-gray-700 w-full"></div>
+
+      {/* EXTRAS */}
 
       <div className=" text-white flex flex-col  max-w-[1030px] items-center lg:flex-row py-20">
         <div className=" flex flex-col gap-6  lg:w-[50%]">
@@ -164,18 +317,23 @@ const Login = () => {
 
       <div className="h-2 bg-gray-700 w-full"></div>
 
-      <div className="text-white py-20 px-4 flex flex-col max-w-[1030px] items-center gap-2">
+      {/* FAQ */}
+
+      <div className="text-white py-20 px-4 flex flex-col w-full max-w-[1030px] items-center gap-2 transition-all">
         <h1 className="text-2xl font-extrabold text-center pb-6 leading-none lg:text-[3rem]">
           Frequently Asked Questions
         </h1>
-        <div className="flex flex-col gap-[1px] ">
+
+        <div className="flex flex-col gap-[1px] w-full ">
           <div
-            className="bg-white bg-opacity-15 p-8 flex justify-between"
+            className="bg-white bg-opacity-15 p-8 flex justify-between "
             onClick={() => {
               handleAccordian("one");
             }}
           >
-            <p className="text-3xl font-semibold">What is Stream-Flix?</p>
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
+              What is Stream-Flix?
+            </p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -185,7 +343,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.one ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -196,11 +354,11 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.one ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.one ? "p-7" : "max-h-0 "
             }`}
           >
-            Netflix is a streaming service that offers a wide variety of
+            Stream-Flix is a streaming service that offers a wide variety of
             award-winning TV shows, movies, anime, documentaries and more – on
             thousands of internet-connected devices.
             <br />
@@ -211,14 +369,14 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[1px] ">
+        <div className="flex flex-col gap-[1px] w-full">
           <div
             className="bg-white bg-opacity-15 p-8 flex justify-between"
             onClick={() => {
               handleAccordian("two");
             }}
           >
-            <p className="text-3xl font-semibold">
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
               How much does Stream-Flix cost?
             </p>
             <svg
@@ -230,7 +388,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.two ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -241,8 +399,8 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.two ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.two ? "p-7" : "max-h-0 "
             }`}
           >
             Watch Stream-Flix on your smartphone, tablet, Smart TV, laptop, or
@@ -251,14 +409,16 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[1px] ">
+        <div className="flex flex-col gap-[1px] w-full">
           <div
             className="bg-white bg-opacity-15 p-8 flex justify-between"
             onClick={() => {
               handleAccordian("three");
             }}
           >
-            <p className="text-3xl font-semibold">Where can I Watch?</p>
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
+              Where can I Watch?
+            </p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -268,7 +428,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.three ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -279,8 +439,8 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.three ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.three ? "p-7" : "max-h-0 "
             }`}
           >
             Watch anywhere, anytime. Sign in with your Netflix account to watch
@@ -290,14 +450,16 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[1px] ">
+        <div className="flex flex-col gap-[1px] w-full">
           <div
             className="bg-white bg-opacity-15 p-8 flex justify-between"
             onClick={() => {
               handleAccordian("four");
             }}
           >
-            <p className="text-3xl font-semibold">How do I cancel?</p>
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
+              How do I cancel?
+            </p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -307,7 +469,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.four ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -318,8 +480,8 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.four ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.four ? "p-7" : "max-h-0 "
             }`}
           >
             Stream-Flix is flexible. There are no annoying contracts and no
@@ -329,14 +491,14 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[1px] ">
+        <div className="flex flex-col gap-[1px] w-full">
           <div
             className="bg-white bg-opacity-15 p-8 flex justify-between"
             onClick={() => {
               handleAccordian("five");
             }}
           >
-            <p className="text-3xl font-semibold">
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
               What can I watch on Stream-Flix?
             </p>
             <svg
@@ -348,7 +510,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.five ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -359,8 +521,8 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.five ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.five ? "p-7" : "max-h-0 "
             }`}
           >
             Stream-Flix is flexible. There are no annoying contracts and no
@@ -370,14 +532,14 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[1px] ">
+        <div className="flex flex-col gap-[1px] w-full ">
           <div
             className="bg-white bg-opacity-15 p-8 flex justify-between"
             onClick={() => {
               handleAccordian("six");
             }}
           >
-            <p className="text-3xl font-semibold">
+            <p className="text-xl font-semibold sm:text-2xl w-[75%]">
               Is Stream-Flix good for Kids?
             </p>
             <svg
@@ -389,7 +551,7 @@ const Login = () => {
               role="img"
               data-icon="PlusLarge"
               aria-hidden="true"
-              className="elj7tfr3 default-ltr-cache-1dpnjn e164gv2o4"
+              className={`${accordian.six ? "rotate-45" : ""} transition-all`}
             >
               <path
                 fillRule="evenodd"
@@ -400,8 +562,8 @@ const Login = () => {
             </svg>
           </div>
           <div
-            className={`bg-white bg-opacity-15 p-7 text-3xl font-normal ${
-              accordian.six ? "" : "hidden"
+            className={`bg-white bg-opacity-15  text-xl font-normal overflow-hidden transition-all ${
+              accordian.six ? "p-7" : "max-h-0 "
             }`}
           >
             The Stream-Flix Kids experience is included in your membership to
@@ -415,13 +577,19 @@ const Login = () => {
         </div>
       </div>
 
+      {/* GET STARTED */}
+
       <div className="flex flex-col items-center gap-6 pb-10">
         <p className="text-white text-center text-lg font-semibold">
           Ready to watch? Enter your email to create or restart your membership.
         </p>
-        <button className="bg-red-500 text-white text-lg font-bold py-2 px-4 rounded-md mx-auto">
+
+        <a
+          href="#login"
+          className="bg-red-500 text-white text-lg font-bold py-2 px-4 rounded-md mx-auto "
+        >
           Get Started
-        </button>
+        </a>
       </div>
     </div>
   );
