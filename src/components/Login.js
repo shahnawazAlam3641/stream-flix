@@ -94,7 +94,7 @@ const Login = () => {
               // ...
             });
           console.log(user);
-          navigate("/browse");
+          // navigate("/browse");
           // ...
         })
         .catch((error) => {
@@ -115,7 +115,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse");
+          // navigate("/browse");
           // ...
         })
         .catch((error) => {
@@ -133,7 +133,7 @@ const Login = () => {
   const password = useRef(null);
 
   return (
-    <div className="flex flex-col bg-black items-center scroll-smooth">
+    <div className="flex flex-col bg-black items-center scroll-smooth overflow-x-hidden">
       <div
         id="login"
         className="w-[100vw] h-[100vh] flex flex-col items-center bg-no-repeat"
@@ -191,8 +191,8 @@ const Login = () => {
               onClick={() => {
                 handleSubmit();
                 // console.log(name.current.value);
-                console.log(email.current.value);
-                console.log(password.current.value);
+                // console.log(email.current.value);
+                // console.log(password.current.value);
               }}
             >
               Sign In
