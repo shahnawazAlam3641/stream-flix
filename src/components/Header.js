@@ -49,17 +49,21 @@ const Header = () => {
   };
 
   return (
-    <div className="flex justify-between py-2 sticky">
-      <img src={streamflixLogo} alt="logo" className="w-44 " />
+    <div className="flex  justify-between   relative z-50">
+      <img
+        src={streamflixLogo}
+        alt="logo"
+        className="w-16 h-6 sm:w-44 sm:h-12 "
+      />
       {user && (
         <>
-          <div className="flex bg-red-600 gap-10 px-5 rounded-full">
-            <img src={magnifyingGlass} alt="search" className="w-6 " />
-            <img src={homeIcon} alt="home" className="w-6 " />
-            <img src={trendingIcon} alt="trending" className="w-6 " />
-            <img src={watchlistIcon} alt="watchlist" className="w-6 " />
+          <div className=" bg-red-600 gap-5 my-2  rounded-full hidden sm:flex ">
+            <img src={magnifyingGlass} alt="search" className="w-6 m-4" />
+            <img src={homeIcon} alt="home" className="w-6 m-4" />
+            <img src={trendingIcon} alt="trending" className="w-6 m-4" />
+            <img src={watchlistIcon} alt="watchlist" className="w-6 m-4" />
           </div>
-          <div className="flex items-center gap-4 w-44 justify-center">
+          <div className=" items-center gap-4 w-44 justify-center hidden sm:flex">
             <img src={userIcon} alt="user" className="w-6 " />
             <div
               className="flex justify-center cursor-pointer text-white"
