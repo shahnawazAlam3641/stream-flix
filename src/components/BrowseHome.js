@@ -63,21 +63,23 @@ const BrowseHome = () => {
         }
       /> */}
 
-      <div className="absolute top-16 text-white  flex flex-col  gap-3  ">
+      <div className="absolute top-32 sm:-top-40 lg:top-16 text-white  flex flex-col  gap-3  ">
         {/* <p className="font-bold text-5xl">{movieVideo.id}</p> */}
-        <div className="w-[65%]  bg-gradient-to-r from-black -mt-72 h-[85vh] sm:h-[100vh] flex flex-col justify-center gap-3 px-4 sm:-mt-20">
+        <div className="w-[65%]  bg-gradient-to-r from-black -mt-72 h-[85vh] sm:h-[100vh] flex flex-col justify-center gap-2 px-4 sm:-mt-20">
           <p className="font-bold text-xl  sm:text-5xl">
-            {useTruncate(movieVideo.title, 5)}
+            {useTruncate(movieVideo.title, 3)}
           </p>
           <p className="text-sm sm:text-xl">
-            {useTruncate(movieVideo.overview, 15)}
+            {useTruncate(movieVideo.overview, 12)}
           </p>
-          <button className="bg-white opacity-90 rounded-md   text-black hover:opacity-50 w-24 sm:w-36 sm:px-2 py-2">
-            Play Now
+          <button className="bg-white opacity-90 rounded-md text-xs sm:text-xl text-black hover:opacity-50 w-24 sm:w-36 sm:px-2 py-2">
+            More Info.
           </button>
         </div>
 
-        <div className={`flex flex-col -mt-36  transition-all duration-500`}>
+        <div
+          className={`flex flex-col -mt-48 sm:-mt-64 lg:-mt-36  transition-all duration-500`}
+        >
           <PosterContainer
             title={"Now Playing Movies"}
             movieList={movie.nowPlayingMovies}

@@ -23,11 +23,17 @@ const PosterContainer = ({ title, movieList }) => {
         <div className="flex justify-between items-center">
           <p className="font-bold text-xl">{title}</p>
           <div className="flex gap-4">
-            <button className="bg-red-500 p-2 rounded-sm" onClick={handleLeft}>
-              left
+            <button
+              className="bg-[#ffffff6a] bg-red-700 text-white hover:bg-red-500 px-3 py-1 rounded-full"
+              onClick={handleLeft}
+            >
+              {"<"}
             </button>
-            <button className="bg-red-500 p-2 rounded-sm" onClick={handleRight}>
-              right
+            <button
+              className="bg-[#ffffff6a] bg-red-700 text-white hover:bg-red-500 px-3 py-1 rounded-full"
+              onClick={handleRight}
+            >
+              {">"}
             </button>
           </div>
         </div>
