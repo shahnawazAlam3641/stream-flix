@@ -70,7 +70,7 @@ const Header = () => {
             <img
               src={homeIcon}
               alt="home"
-              className="w-6 m-4 opacity-55 hover:opacity-100 cursor-pointer "
+              className="w-6 m-4 opacity-100 hover:opacity-100 cursor-pointer "
               title="Home"
             />
             <img
@@ -120,10 +120,13 @@ const Header = () => {
               }}
             />
             <p>Search</p>
-            <p>Home</p>
+            <p className="text-white">Home</p>
             <p>Trending</p>
             <p>Watch List</p>
-            <button className="text-white bg-red-600 py-1 px-2 rounded-sm">
+            <button
+              className="text-white bg-red-600 py-1 px-2 rounded-sm"
+              onClick={handleSignOut}
+            >
               Log Out
             </button>
           </div>
